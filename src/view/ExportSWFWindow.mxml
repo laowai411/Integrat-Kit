@@ -8,21 +8,18 @@
 		  height="400" 
 		  contentBackgroundColor="#FFFFFF"
 		  creationComplete="onCreationComplete()" 
-		  initialize="onInitialize()"
-		  resize="onResizeHandler()"
 		  showStatusBar="false"
+		  resizable="false"
+		  maximizable="false"
 		  title="从SWF导出导出图片">
 	<s:layout>
 		<s:BasicLayout/>
 	</s:layout>
+	
 	<fx:Script>
 		<![CDATA[
-			import common.display.BitmapMovieClip;
-			
 			import events.ParamEvent;
-			
 			import load.SourceCache;
-			
 			import mx.events.DragEvent;
 			import mx.graphics.codec.JPEGEncoder;
 			import mx.graphics.codec.PNGEncoder;
@@ -67,11 +64,6 @@
 			 * 剩余还没有导出图片的swf数量
 			 * */
 			private var oddCount:uint;
-			
-			private function onInitialize():void
-			{
-				this.visible = false;
-			}
 			
 			/**
 			 * 初始化完成
@@ -303,18 +295,6 @@
 				gMask.graphics.drawRect(0, 0, width, height);
 				gMask.graphics.endFill();
 				return gMask;
-			}
-			
-			/**
-			 * 窗口缩放
-			 * */
-			private function onResizeHandler():void
-			{
-				if(gMask)
-				{
-					gMask.graphics.clear();
-					createMask();
-				}
 			}
 			
 			/**

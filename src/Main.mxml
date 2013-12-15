@@ -7,7 +7,7 @@
 					   creationComplete="init()" 
 					   xmlns:tabs="view.tabs.*"
 					   >
-	<fx:Style source="Main.css"/>
+	<fx:Style source="./style/Main.css"/>
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
 	</fx:Declarations>

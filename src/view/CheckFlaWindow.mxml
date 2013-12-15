@@ -81,8 +81,8 @@
 			 * */
 			private function initAppConfig():void
 			{
-				appConfig = new File(File.applicationDirectory.resolvePath("./etc/config.xml").nativePath);
-				print("加载配置文件:"+File.applicationDirectory.resolvePath("./etc/config.xml").nativePath);
+				appConfig = new File(File.applicationDirectory.resolvePath("./etc/checkFla/config.xml").nativePath);
+				print("加载配置文件:"+File.applicationDirectory.resolvePath("./etc/checkFla/config.xml").nativePath);
 				
 				var readStream:FileStream = new FileStream();
 				readStream.open(appConfig, FileMode.READ);
@@ -595,7 +595,8 @@
 			 * */
 			private function onClickReadMeHandler():void
 			{
-				var file:File = new File(File.applicationDirectory.nativePath+"\\readme.txt");
+				var file:File = File.applicationDirectory;
+				file = file.resolvePath(file.nativePath+"/etc/checkFla/readme.txt");
 				if(file && file.exists)
 				{
 					file.openWithDefaultApplication();

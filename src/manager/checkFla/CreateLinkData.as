@@ -116,7 +116,7 @@ package manager.checkFla
 		 * */
 		private function getTemplateJSFL():void
 		{
-			var jsflFile:File = new File(File.applicationDirectory.resolvePath("./etc/link.jsfl").nativePath);
+			var jsflFile:File = new File(File.applicationDirectory.resolvePath("./etc/checkFla/link.jsfl").nativePath);
 			var rs:FileStream = new FileStream();
 			rs.open(jsflFile, FileMode.READ);
 			templateJSFL = rs.readUTFBytes(rs.bytesAvailable);

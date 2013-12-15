@@ -1,0 +1,22 @@
+[14:46:28]加载配置文件:E:\WorkSpace\Integrat Kit\bin-debug\etc\config.xml
+[14:46:28]初始化完成
+[14:49:25]加载配置文件:E:\WorkSpace\Integrat Kit\bin-debug\etc\config.xml
+[14:49:25]初始化完成
+[14:57:43]加载配置文件:E:\WorkSpace\Integrat Kit\bin-debug\etc\config.xml
+[14:57:43]初始化完成
+[15:0:42]加载配置文件:E:\WorkSpace\Integrat Kit\bin-debug\etc\config.xml
+[15:0:42]初始化完成
+[15:3:59]加载配置文件:E:\WorkSpace\Integrat Kit\bin-debug\etc\config.xml
+[15:3:59]初始化完成
+[15:8:10]加载配置文件:E:\WorkSpace\Integrat Kit\bin-debug\etc\config.xml
+[15:8:10]初始化完成
+[15:8:15]加载配置文件:E:\WorkSpace\Integrat Kit\bin-debug\etc\config.xml
+[15:8:15]初始化完成
+[15:8:30]加载配置文件:E:\WorkSpace\Integrat Kit\bin-debug\etc\config.xml
+[15:8:30]初始化完成
+[15:8:45]加载配置文件:E:\WorkSpace\Integrat Kit\bin-debug\etc\config.xml
+[15:8:45]初始化完成
+[15:11:24]加载配置文件:E:\WorkSpace\Integrat Kit\bin-debug\etc\config.xml
+[15:11:24]初始化完成
+[15:11:32]未保存配置直接运行
+[15:11:32]Flash.exe路径不正确D:\Tools\FlashCS5.5(x86)\Adobe Flash CS5.5\Flash.exe

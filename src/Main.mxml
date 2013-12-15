@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   width="400"
+					   height="300"
+					   creationComplete="init()" 
+					   xmlns:tabs="view.tabs.*"
+					   >
+	<fx:Style source="Main.css"/>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import events.ParamEvent;
+			
+			import view.CheckFlaWindow;
+			import view.ExportSWFWindow;
+			import view.IntegratMenu;
+			
+			/**
+			 * 导出swf中的图片
+			 * */
+			private var exportSWFWindow:ExportSWFWindow;
+			
+			/**
+			 * 检查fla中无用的连接
+			 * */
+			private var checkFlaLinkWindow:CheckFlaWindow;
+			
+			/**
+			 * 初始化, 工具初始化
+			 * */
+			public function init():void
+			{
+				//初始化界面
+				initWindow();
+			}
+			
+			/**
+			 * 初始化界面
+			 * */
+			private function initWindow():void
+			{
+				IntegratMenu.initialize(nativeWindow);
+				//选择了"工具-导出swf"
+				IntegratMenu.addEventListener(IntegratMenu.TOOL_EXPORT_SWF, onSelectExportSWFHandler);
+				//选择了'工具-检查fla链接'
+				IntegratMenu.addEventListener(IntegratMenu.TOOL_CHECK_FLA, onSelectCheckFlaHandler);
+			}
+			
+			/**
+			 * 选择了"工具-导出SWF"
+			 * */
+			private function onSelectExportSWFHandler(e:Event):void
+			{
+				if(exportSWFWindow == null || exportSWFWindow.closed)
+				{
+					exportSWFWindow = new ExportSWFWindow();
+					exportSWFWindow.open(true);
+				}
+				else if(exportSWFWindow && !exportSWFWindow.closed)
+				{
+					exportSWFWindow.close();
+				}
+			}
+			
+			/**
+			 * 选择了工具-检查fla无用连接
+			 * */
+			private function onSelectCheckFlaHandler(e:Event):void
+			{
+				if(checkFlaLinkWindow == null || checkFlaLinkWindow.closed)
+				{
+					checkFlaLinkWindow = new CheckFlaWindow();
+					checkFlaLinkWindow.open(true);
+				}
+				else if(checkFlaLinkWindow && !checkFlaLinkWindow.closed)
+				{
+					checkFlaLinkWindow.close();
+				}
+			}
+		]]>
+	</fx:Script>
+</s:WindowedApplication>

@@ -1,0 +1,353 @@
+<?xml version="1.0"?>
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:components="components.*"
+		  xmlns:tabs="components.tabs.*"
+		  width="600" 
+		  height="400" 
+		  contentBackgroundColor="#FFFFFF"
+		  creationComplete="onCreationComplete()" 
+		  initialize="onInitialize()"
+		  resize="onResizeHandler()"
+		  showStatusBar="false"
+		  title="从SWF导出导出图片">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	<fx:Script>
+		<![CDATA[
+			import common.display.BitmapMovieClip;
+			
+			import events.ParamEvent;
+			
+			import load.SourceCache;
+			
+			import mx.events.DragEvent;
+			import mx.graphics.codec.JPEGEncoder;
+			import mx.graphics.codec.PNGEncoder;
+			
+			
+			/**
+			 * 文件列表
+			 * */
+			private var fileList:Array;
+			
+			/**
+			 * 文件输入流
+			 * */
+			private var writeStream:FileStream = new FileStream();
+			
+			/**
+			 * png压缩器
+			 * */
+			private var png:PNGEncoder = new PNGEncoder();
+			
+			/**
+			 * 生成图片的Url
+			 * */
+			private var targetURL:String = "";
+			
+			/**
+			 * 是否生成png
+			 * */
+			private var isPng:Boolean = true;
+			
+			/***
+			 * jpg品质
+			 * */
+			private var jpgQua:int;
+			
+			/**
+			 * 开始导出， 全屏禁止鼠标事件
+			 * */
+			private var gMask:Shape;
+			
+			/**
+			 * 剩余还没有导出图片的swf数量
+			 * */
+			private var oddCount:uint;
+			
+			private function onInitialize():void
+			{
+				this.visible = false;
+			}
+			
+			/**
+			 * 初始化完成
+			 * */
+			private function onCreationComplete():void
+			{
+				showInfo();
+				if(NativeDragManager.isSupported == true)
+				{
+					NativeDragManager.acceptDragDrop(this);
+					NativeDragManager.dropAction = NativeDragActions.LINK;
+					this.addEventListener(NativeDragEvent.NATIVE_DRAG_ENTER, onDragEnterHandler);
+				}
+			}
+			
+			/**
+			 * 文件拖入
+			 * */
+			private function onDragEnterHandler(e:NativeDragEvent):void
+			{
+				fileList = e.clipboard.getData(ClipboardFormats.FILE_LIST_FORMAT ) as Array;
+				txtURL.text = (fileList[0] as File).parent.nativePath;
+			}
+			
+			/**
+			 * 点击了浏览按钮
+			 * */
+			private function onClickSelectHandler():void
+			{
+				var file:File = new File();
+				file.browseForOpenMultiple("请选择swf文件", [new FileFilter("*.swf", "*.swf")]);
+				file.addEventListener(FileListEvent.SELECT_MULTIPLE, onSelecteFileHandler);
+			}
+			
+			/**
+			 * 选择了文件
+			 * */
+			private function onSelecteFileHandler(e:FileListEvent):void
+			{
+				fileList = e.files;
+				txtURL.text = (fileList[0] as File).parent.nativePath
+			}
+			
+			/**
+			 * 加载文件，并生成图片
+			 * */
+			private function loadFiles():void
+			{
+				var len:uint = fileList?fileList.length:0;
+				oddCount = len;
+				while(len>0)
+				{
+					len--;
+					var file:File = fileList[len];
+					if(file.type == ".swf")
+					{
+						SourceCache.getInstance().addEventListener(Event.COMPLETE, onLoadDisCompleteHandler);
+						SourceCache.getInstance().load(file.nativePath);
+					}
+					txtLog.text = "剩余文件数量："+len;
+				}
+			}
+			
+			/**
+			 * swf载入完成
+			 * */
+			private function onLoadDisCompleteHandler(e:ParamEvent):void
+			{
+				//从自定义的远点截取图像宽高的透明图片
+				var movie:MovieClip = MovieClip(e.param.data);
+				var file:File = new File(e.param.url);
+				trace("totalFrams:", movie.totalFrames);
+				txtFrame.text = "帧数："+movie.totalFrames.toString();
+				
+				for(var i:uint=1; i<=movie.totalFrames; i++)
+				{
+					movie.gotoAndStop(i);
+					var rect:Rectangle = movie.getBounds(movie);
+					var bd:BitmapData = new BitmapData(rect.width, rect.height, true);
+					bd.draw(movie, new Matrix(1,0, 0, 1, -int(txtOffSetX.text), -int(txtOffSetX.text)));
+					rect.x -= int(txtOffSetX.text);
+					rect.y -= int(txtOffSetX.text);
+					bd.lock();
+					
+					getTargetURL(file, i);
+					
+					if(isPng)
+					{
+						targetURL += ".png";
+						createPng(bd, rect);
+					}
+					else
+					{
+						targetURL += ".jpg";
+						createJpg(bd, rect);
+					}
+				}
+				oddCount--;
+				if(oddCount < 1)
+				{
+					if(gMask && gMask.parent)
+					{
+						gMask.parent.removeChild(gMask);
+					}
+					this.mouseChildren = true;
+					this.mouseEnabled = true;
+				}
+				
+				//从舞台0，0点开始，截取舞台宽高一样的透明位图
+				/* var movie:MovieClip = MovieClip(e.param.data);
+				var targetURL:String = e.param.url;
+				var file:File = new File(targetURL);
+				trace("totalFrams:", movie.totalFrames);
+				var writeStream:FileStream = new FileStream();
+				var png:PNGEncoder = new PNGEncoder();
+				for(var i:uint=0; i<movie.totalFrames; i++)
+				{
+					movie.gotoAndStop(i+1);
+					var rect:Rectangle = getBounds(movie);
+					var bd:BitmapData = new BitmapData(rect.width, rect.height, true, 0x000000);
+					
+					bd.draw(movie);
+					bd.lock();
+					
+					var data:ByteArray = png.encodeByteArray(bd.getPixels(rect), rect.width, rect.height);
+					var pic:File = new File(file.parent.nativePath+"/"+(i+1)+".png");
+					writeStream.open(pic, FileMode.WRITE);
+					writeStream.writeBytes(data);
+					writeStream.close();
+					pic.cancel();
+					bd.unlock();
+					bd.dispose();
+				} */
+			}
+			
+			/**
+			 * 确定目标文件路径
+			 * */
+			private function getTargetURL(file:File, frameIndex:int):void
+			{
+				targetURL = file.nativePath.replace(file.type, "");
+				if(yes.selected)
+				{
+					var dir:File = new File(targetURL);
+					if(!dir.exists || !dir.isDirectory)
+					{
+						dir.createDirectory();
+						dir.cancel();
+					}
+					targetURL += "/"+(frameIndex+1);
+				}
+				else
+				{
+					targetURL += "_"+(frameIndex+1);
+				}
+			}
+			
+			/**
+			 * 生成png
+			 * */
+			private function createPng(bd:BitmapData, rect:Rectangle):void
+			{
+				var data:ByteArray = png.encodeByteArray(bd.getPixels(rect), Math.ceil(rect.width), Math.ceil(rect.height));
+				var pic:File = new File(targetURL);
+				writeStream.open(pic, FileMode.WRITE);
+				writeStream.writeBytes(data);
+				writeStream.close();
+				pic.cancel();
+				bd.unlock();
+				bd.dispose();
+				trace(targetURL+" complete！");
+			}
+			
+			/**
+			 * 生成jpg
+			 * */
+			private function createJpg(bd:BitmapData, rect:Rectangle):void
+			{
+				var jpg:JPEGEncoder = new JPEGEncoder(jpgQua);
+				var data:ByteArray = jpg.encodeByteArray(bd.getPixels(rect), Math.ceil(rect.width), Math.ceil(rect.height));
+				var pic:File = new File(targetURL);
+				writeStream.open(pic, FileMode.WRITE);
+				writeStream.writeBytes(data);
+				writeStream.close();
+				pic.cancel();
+				bd.unlock();
+				bd.dispose();
+				trace(targetURL+" complete！");				
+			}
+			
+			/**
+			 * 透明度滑动条更新
+			 * */
+			private function onAlphaChangeHandler():void
+			{
+				txtAlpha.text = "品质："+proAlpha.value+"%";
+				radAlpha.selected = false;
+				rad100.selected = true;
+				isPng = radAlpha.selected;
+				jpgQua = proAlpha.value;
+			}
+			
+			/**
+			 * 点击了导出图片按钮
+			 * */
+			private function onClickExportHandler():void
+			{
+				stage.addChild(createMask());
+				this.mouseChildren = false;
+				this.mouseEnabled = false;
+				loadFiles();
+				txtLog.text = "载入swf...";
+			}
+			
+			/**
+			 * 创建遮盖
+			 * */
+			private function createMask():Shape
+			{
+				if(gMask == null)
+				{
+					gMask = new Shape();
+				}
+				else
+				{
+					gMask.graphics.clear();
+				}
+				gMask.graphics.beginFill(0, 0.4);
+				gMask.graphics.drawRect(0, 0, width, height);
+				gMask.graphics.endFill();
+				return gMask;
+			}
+			
+			/**
+			 * 窗口缩放
+			 * */
+			private function onResizeHandler():void
+			{
+				if(gMask)
+				{
+					gMask.graphics.clear();
+					createMask();
+				}
+			}
+			
+			/**
+			 * 显示说明
+			 * */
+			private function showInfo():void
+			{
+				var file:File = File.applicationDirectory;
+				file = file.resolvePath("./etc/readMe_ExportSWF");
+				var readStream:FileStream = new FileStream();
+				readStream.open(file, FileMode.READ);
+				txtInfo.text = readStream.readUTFBytes(file.size);
+			}
+		]]>
+	</fx:Script>
+	<s:Label x="60" y="70" width="50" height="20" text="路径:"/>
+	<s:TextInput id="txtURL" x="95" y="66" width="400" height="20"/>
+	<s:Button x="500" y="66" width="60" height="20" label="浏览" click="onClickSelectHandler()"/>
+	<s:Label id="txtFrame" x="60" y="100" width="72" text="帧数：0"/>
+	<s:Label x="140" y="100" text="中心点："/>
+	<s:Label x="190" y="100" text="X："/>
+	<s:TextInput x="205" y="96" width="40" height="18" text="190" id="txtOffSetX"/>
+	<s:Label x="255" y="100" text="Y："/>
+	<s:TextInput x="270" y="96" width="40" height="18" text="190" id="txtOffSetY"/>
+	<s:RadioButton id="radAlpha" x="60" y="270" label="透明（100%品质）" groupName="alpha" selected="true"/>
+	<s:RadioButton id="rad100" x="205" y="270" label="不透明" groupName="alpha" selected="false"/>
+	<s:HSlider id="proAlpha" x="205" y="305" change="onAlphaChangeHandler()" maximum="100"
+			   minimum="30" stepSize="1" value="80"/>
+	<s:Label id="txtAlpha" x="205" y="320" text="品质：80%"/>
+	<s:Button x="160" y="170" label="导出图片" click="onClickExportHandler()"/>
+	<s:Label id="txtLog" x="60" y="340" width="520" height="18" color="#4A643F" text="当前状态：等待中..."/>
+	<s:Label x="414" y="276" width="123" text="是否图片分别放置"/>
+	<s:RadioButton x="415" y="295" label="是" selected="true" groupName="fenbie" id="yes"/>
+	<s:RadioButton x="475" y="295" label="否" selected="false" groupName="fenbie" id="no"/>
+	<s:TextArea x="370" y="100" id="txtInfo" enabled="false"/>
+</s:Window>

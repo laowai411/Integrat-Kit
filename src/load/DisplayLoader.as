@@ -50,8 +50,7 @@ package load
 		 * */
 		private function onLoadCompleteHandler(e:Event):void
 		{
-			var data:LoaderInfo = e.target as LoaderInfo;
-			this.dispatchEvent(new ParamEvent(Event.COMPLETE, {data:data.content, url:url}));
+			this.dispatchEvent(new ParamEvent(Event.COMPLETE, {data:e.target, url:url}));
 		}
 		
 		/**

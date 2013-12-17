@@ -1,0 +1,34 @@
+[20:39:45]10000 检测
+[20:39:45]E:\RemoteWorkSpace\Integrat-Kit\bin-debug\temp\jsfl\zodiac.jsfl生成成功
+[20:39:45]E:\RemoteWorkSpace\Integrat-Kit\bin-debug\temp\jsfl\zodiac.jsfl开始执行
+[20:39:45]10000 检测
+[20:39:46]flash.exe退出 0
+[20:39:46][NativeProcessExitEvent type="exit" bubbles=false cancelable=false exitCode=0]
+[20:39:55]10000 检测
+[20:39:55]上一个jsfl执行完成
+[20:39:55]E:\RemoteWorkSpace\Integrat-Kit\bin-debug\temp\jsfl\zhenQiPool.jsfl生成成功
+[20:39:55]E:\RemoteWorkSpace\Integrat-Kit\bin-debug\temp\jsfl\zhenQiPool.jsfl开始执行
+[20:39:55]10000 检测
+[20:39:56]flash.exe退出 0
+[20:39:56][NativeProcessExitEvent type="exit" bubbles=false cancelable=false exitCode=0]
+[20:40:5]10000 检测
+[20:40:5]上一个jsfl执行完成
+[20:40:5]E:\RemoteWorkSpace\Integrat-Kit\bin-debug\temp\jsfl\worldboss_drop.jsfl生成成功
+[20:40:5]E:\RemoteWorkSpace\Integrat-Kit\bin-debug\temp\jsfl\worldboss_drop.jsfl开始执行
+[20:40:5]10000 检测
+[20:40:6]flash.exe退出 0
+[20:40:6][NativeProcessExitEvent type="exit" bubbles=false cancelable=false exitCode=0]
+[20:40:15]10000 检测
+[20:40:15]上一个jsfl执行完成
+[20:40:15]E:\RemoteWorkSpace\Integrat-Kit\bin-debug\temp\jsfl\worldboss.jsfl生成成功
+[20:40:15]E:\RemoteWorkSpace\Integrat-Kit\bin-debug\temp\jsfl\worldboss.jsfl开始执行
+[20:40:15]10000 检测
+[20:40:16]flash.exe退出 0
+[20:40:16][NativeProcessExitEvent type="exit" bubbles=false cancelable=false exitCode=0]
+[20:40:25]10000 检测
+[20:40:25]上一个jsfl执行完成
+[20:40:25]E:\RemoteWorkSpace\Integrat-Kit\bin-debug\temp\jsfl\welfare.jsfl生成成功
+[20:40:25]E:\RemoteWorkSpace\Integrat-Kit\bin-debug\temp\jsfl\welfare.jsfl开始执行
+[20:40:25]10000 检测
+[20:40:26]flash.exe退出 0
+[20:40:26][NativeProcessExitEvent type="exit" bubbles=false cancelable=false exitCode=0]

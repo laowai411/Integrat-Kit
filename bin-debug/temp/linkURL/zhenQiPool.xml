@@ -1,0 +1,20 @@
+<xml>
+	<link id="zhenQi.getTenIcon">
+		<srcFla>F:\xymmo\assets_src\ui\zhenQiPool.fla</srcFla>
+	</link>
+	<link id="zhenQi.getOneIcon">
+		<srcFla>F:\xymmo\assets_src\ui\zhenQiPool.fla</srcFla>
+	</link>
+	<link id="zhenQi.freeGetIcon">
+		<srcFla>F:\xymmo\assets_src\ui\zhenQiPool.fla</srcFla>
+	</link>
+	<link id="zhenQi.recordTitle">
+		<srcFla>F:\xymmo\assets_src\ui\zhenQiPool.fla</srcFla>
+	</link>
+	<link id="zhenQi.Arrow">
+		<srcFla>F:\xymmo\assets_src\ui\zhenQiPool.fla</srcFla>
+	</link>
+	<link id="zhenQi.alreadyGet">
+		<srcFla>F:\xymmo\assets_src\ui\zhenQiPool.fla</srcFla>
+	</link>
+</xml>

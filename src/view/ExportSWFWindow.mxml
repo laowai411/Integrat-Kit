@@ -19,7 +19,10 @@
 	<fx:Script>
 		<![CDATA[
 			import events.ParamEvent;
+			
 			import load.SourceCache;
+			
+			import mx.controls.Alert;
 			import mx.events.DragEvent;
 			import mx.graphics.codec.JPEGEncoder;
 			import mx.graphics.codec.PNGEncoder;
@@ -44,11 +47,6 @@
 			 * 生成图片的Url
 			 * */
 			private var targetURL:String = "";
-			
-			/**
-			 * 是否生成png
-			 * */
-			private var isPng:Boolean = true;
 			
 			/***
 			 * jpg品质
@@ -133,7 +131,8 @@
 			private function onLoadDisCompleteHandler(e:ParamEvent):void
 			{
 				//从自定义的远点截取图像宽高的透明图片
-				var movie:MovieClip = MovieClip(e.param.data);
+				var disData:LoaderInfo = e.param.data as LoaderInfo;
+				var movie:MovieClip = disData.content as MovieClip;
 				var file:File = new File(e.param.url);
 				trace("totalFrams:", movie.totalFrames);
 				txtFrame.text = "帧数："+movie.totalFrames.toString();
@@ -141,16 +140,18 @@
 				for(var i:uint=1; i<=movie.totalFrames; i++)
 				{
 					movie.gotoAndStop(i);
-					var rect:Rectangle = movie.getBounds(movie);
-					var bd:BitmapData = new BitmapData(rect.width, rect.height, true);
-					bd.draw(movie, new Matrix(1,0, 0, 1, -int(txtOffSetX.text), -int(txtOffSetX.text)));
-					rect.x -= int(txtOffSetX.text);
-					rect.y -= int(txtOffSetX.text);
-					bd.lock();
+					var rect:Rectangle = disData.content.getBounds(disData.content);
+					if(rect.width < 1 || rect.height < 1)
+					{
+						continue;
+					}
+					var bd:BitmapData = new BitmapData(rect.width, rect.height, true, 0);
+					bd.draw(disData.content, new Matrix(1, 0, 0, 1, -rect.x, -rect.y), null, null, null, true);
 					
 					getTargetURL(file, i);
 					
-					if(isPng)
+					rect.offsetPoint(new Point(-rect.x, -rect.y));
+					if(radAlpha.selected)
 					{
 						targetURL += ".png";
 						createPng(bd, rect);
@@ -171,32 +172,6 @@
 					this.mouseChildren = true;
 					this.mouseEnabled = true;
 				}
-				
-				//从舞台0，0点开始，截取舞台宽高一样的透明位图
-				/* var movie:MovieClip = MovieClip(e.param.data);
-				var targetURL:String = e.param.url;
-				var file:File = new File(targetURL);
-				trace("totalFrams:", movie.totalFrames);
-				var writeStream:FileStream = new FileStream();
-				var png:PNGEncoder = new PNGEncoder();
-				for(var i:uint=0; i<movie.totalFrames; i++)
-				{
-					movie.gotoAndStop(i+1);
-					var rect:Rectangle = getBounds(movie);
-					var bd:BitmapData = new BitmapData(rect.width, rect.height, true, 0x000000);
-					
-					bd.draw(movie);
-					bd.lock();
-					
-					var data:ByteArray = png.encodeByteArray(bd.getPixels(rect), rect.width, rect.height);
-					var pic:File = new File(file.parent.nativePath+"/"+(i+1)+".png");
-					writeStream.open(pic, FileMode.WRITE);
-					writeStream.writeBytes(data);
-					writeStream.close();
-					pic.cancel();
-					bd.unlock();
-					bd.dispose();
-				} */
 			}
 			
 			/**
@@ -221,37 +196,83 @@
 				}
 			}
 			
+//			private function create():void
+//			{
+//				//从舞台0，0点开始，截取舞台宽高一样的透明位图
+//				var movie:MovieClip = MovieClip(e.param.data);
+//				var targetURL:String = e.param.url;
+//				var file:File = new File(targetURL);
+//				trace("totalFrams:", movie.totalFrames);
+//				var writeStream:FileStream = new FileStream();
+//				var png:PNGEncoder = new PNGEncoder();
+//				for(var i:uint=0; i<movie.totalFrames; i++)
+//				{
+//				movie.gotoAndStop(i+1);
+//				var rect:Rectangle = getBounds(movie);
+//				var bd:BitmapData = new BitmapData(rect.width, rect.height, true, 0x000000);
+//				
+//				bd.draw(movie);
+//				bd.lock();
+//				
+//				var data:ByteArray = png.encodeByteArray(bd.getPixels(rect), rect.width, rect.height);
+//				var pic:File = new File(file.parent.nativePath+"/"+(i+1)+".png");
+//				writeStream.open(pic, FileMode.WRITE);
+//				writeStream.writeBytes(data);
+//				writeStream.close();
+//				pic.cancel();
+//				bd.unlock();
+//				bd.dispose();
+//			}
+			
 			/**
 			 * 生成png
 			 * */
-			private function createPng(bd:BitmapData, rect:Rectangle):void
+			private function createPng(bd:BitmapData, rect:Rectangle=null):Boolean
 			{
-				var data:ByteArray = png.encodeByteArray(bd.getPixels(rect), Math.ceil(rect.width), Math.ceil(rect.height));
-				var pic:File = new File(targetURL);
-				writeStream.open(pic, FileMode.WRITE);
-				writeStream.writeBytes(data);
-				writeStream.close();
-				pic.cancel();
-				bd.unlock();
-				bd.dispose();
-				trace(targetURL+" complete！");
+				try
+				{
+					var data:ByteArray = png.encodeByteArray(bd.getPixels(rect), rect.width, rect.height) //png.encode(bd); ;
+					var pic:File = new File(targetURL);
+					writeStream.open(pic, FileMode.WRITE);
+					writeStream.writeBytes(data);
+					writeStream.close();
+					pic.cancel();
+					trace(targetURL+" complete！");
+					return true;
+				}
+				catch(e:Error)
+				{
+//					Alert.show("创建图片错误!\nswf类型不符合要求!");
+					txtLog.text = "创建图片类型错误!  swf类型不符合要求";
+					return false;
+				}
+				return false;
 			}
 			
 			/**
 			 * 生成jpg
 			 * */
-			private function createJpg(bd:BitmapData, rect:Rectangle):void
+			private function createJpg(bd:BitmapData, rect:Rectangle=null):Boolean
 			{
-				var jpg:JPEGEncoder = new JPEGEncoder(jpgQua);
-				var data:ByteArray = jpg.encodeByteArray(bd.getPixels(rect), Math.ceil(rect.width), Math.ceil(rect.height));
-				var pic:File = new File(targetURL);
-				writeStream.open(pic, FileMode.WRITE);
-				writeStream.writeBytes(data);
-				writeStream.close();
-				pic.cancel();
-				bd.unlock();
-				bd.dispose();
-				trace(targetURL+" complete！");				
+				try
+				{
+					var jpg:JPEGEncoder = new JPEGEncoder(jpgQua);
+					var data:ByteArray = jpg.encodeByteArray(bd.getPixels(rect), Math.ceil(rect.width), Math.ceil(rect.height));//jpg.encode(bd);
+					var pic:File = new File(targetURL);
+					writeStream.open(pic, FileMode.WRITE);
+					writeStream.writeBytes(data);
+					writeStream.close();
+					pic.cancel();
+					trace(targetURL+" complete！");	
+					return true;
+				}
+				catch(e:Error)
+				{
+//					Alert.show("创建图片错误!\nswf类型不符合要求!");
+					txtLog.text = "创建图片类型错误!  swf类型不符合要求";
+					return false;
+				}
+				return false;
 			}
 			
 			/**
@@ -262,7 +283,6 @@
 				txtAlpha.text = "品质："+proAlpha.value+"%";
 				radAlpha.selected = false;
 				rad100.selected = true;
-				isPng = radAlpha.selected;
 				jpgQua = proAlpha.value;
 			}
 			
@@ -314,11 +334,13 @@
 	<s:TextInput id="txtURL" x="95" y="66" width="400" height="20"/>
 	<s:Button x="500" y="66" width="60" height="20" label="浏览" click="onClickSelectHandler()"/>
 	<s:Label id="txtFrame" x="60" y="100" width="72" text="帧数：0"/>
+	<!--
 	<s:Label x="140" y="100" text="中心点："/>
 	<s:Label x="190" y="100" text="X："/>
 	<s:TextInput x="205" y="96" width="40" height="18" text="190" id="txtOffSetX"/>
 	<s:Label x="255" y="100" text="Y："/>
 	<s:TextInput x="270" y="96" width="40" height="18" text="190" id="txtOffSetY"/>
+	-->
 	<s:RadioButton id="radAlpha" x="60" y="270" label="透明（100%品质）" groupName="alpha" selected="true"/>
 	<s:RadioButton id="rad100" x="205" y="270" label="不透明" groupName="alpha" selected="false"/>
 	<s:HSlider id="proAlpha" x="205" y="305" change="onAlphaChangeHandler()" maximum="100"
